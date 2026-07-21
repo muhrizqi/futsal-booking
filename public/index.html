@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jadwal Lapangan — Jogokariyan Futsal, 4R Futsal & KALISI Mini Soccer</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="kotak-lampu"></span>
+    <div>
+      <div class="brand-title">Booking Lapangan Jogja</div>
+      <div class="brand-sub">Jogokariyan Futsal · 4R Futsal · KALISI Mini Soccer</div>
+    </div>
+  </div>
+  <a href="/admin.html" class="btn btn-outline" style="text-decoration:none; padding:9px 16px; font-size:12px;">Login Admin</a>
+</div>
+
+<div class="container">
+
+  <div class="hero">
+    <div class="eyebrow">// CEK JADWAL &amp; SEWA LAPANGAN</div>
+    <h1>Lihat Lapangan Kosong, Langsung Chat Admin.</h1>
+    <p>Pilih tempat, klik tanggal di kalender, lalu lihat jam yang masih kosong. Sudah cocok? Hubungi admin tempat itu langsung lewat WhatsApp untuk konfirmasi booking.</p>
+  </div>
+
+  <div class="venue-tabs" id="venue-tabs"></div>
+
+  <div class="venue-card" id="venue-card"></div>
+
+  <div class="kalender-header">
+    <h2 id="kalender-judul">Memuat...</h2>
+    <div class="kalender-nav">
+      <button id="btn-bulan-prev">&larr; Sebelumnya</button>
+      <button id="btn-bulan-next">Berikutnya &rarr;</button>
+    </div>
+  </div>
+
+  <div class="grid-hari-label">
+    <span>Ahad</span><span>Senin</span><span>Selasa</span><span>Rabu</span><span>Kamis</span><span>Jum'at</span><span>Sabtu</span>
+  </div>
+  <div class="grid-kalender" id="grid-kalender"></div>
+
+  <div class="detail-hari hidden" id="detail-hari">
+    <h3 id="detail-judul-venue"></h3>
+    <div class="tanggal-panjang" id="detail-tanggal"></div>
+    <div id="detail-lapangan-list"></div>
+  </div>
+
+  <div class="panel-pilihan hidden" id="panel-pilihan">
+    <div class="ringkasan" id="panel-ringkasan"></div>
+    <div class="flex gap">
+      <button class="btn btn-outline" id="btn-batal-pilih">Batal</button>
+      <a class="btn btn-wa" id="btn-hubungi-admin" href="#" target="_blank" rel="noopener">Hubungi Admin via WhatsApp</a>
+    </div>
+  </div>
+
+</div>
+
+<footer class="footer">Booking Lapangan Jogja — jadwal diperbarui langsung dari sistem admin.</footer>
+
+<script src="/js/app.js"></script>
+</body>
+</html>

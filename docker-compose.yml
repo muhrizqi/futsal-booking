@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: booking_lapangan
+      POSTGRES_USER: booking_user
+      POSTGRES_PASSWORD: ganti_password_ini
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U booking_user -d booking_lapangan"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://booking_user:ganti_password_ini@db:5432/booking_lapangan
+      JWT_SECRET: ganti_dengan_string_acak_yang_sangat_panjang_dan_rahasia
+      PORT: 3000
+      BACKUP_DIR: /app/backups
+    ports:
+      - "3000:3000"
+    volumes:
+      - backup_data:/app/backups
+
+volumes:
+  db_data:
+  backup_data:

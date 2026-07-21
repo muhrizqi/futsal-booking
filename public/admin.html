@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Booking Lapangan Jogja</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-shell" id="login-shell">
+  <div class="login-box">
+    <div class="brand" style="margin-bottom:22px;">
+      <span class="kotak-lampu"></span>
+      <div>
+        <div class="brand-title">Admin</div>
+        <div class="brand-sub">Booking Lapangan Jogja</div>
+      </div>
+    </div>
+    <div id="login-error"></div>
+    <form id="form-login">
+      <label>Username</label>
+      <input type="text" id="login-username" required autocomplete="username">
+      <label>Password</label>
+      <input type="password" id="login-password" required autocomplete="current-password">
+      <button class="btn btn-gold" style="width:100%;" type="submit">Masuk</button>
+    </form>
+    <p class="text-faint mt" style="font-size:12px;"><a href="/">&larr; Kembali ke halaman jadwal pelanggan</a></p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-shell" class="hidden">
+  <div class="topbar">
+    <div class="brand">
+      <span class="kotak-lampu"></span>
+      <div>
+        <div class="brand-title">Panel Admin</div>
+        <div class="brand-sub" id="user-info"></div>
+      </div>
+    </div>
+    <div class="flex gap">
+      <button class="btn btn-outline" id="btn-ganti-password" style="padding:9px 16px; font-size:12px;">Ganti Password</button>
+      <button class="btn btn-outline" id="btn-logout" style="padding:9px 16px; font-size:12px;">Keluar</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="tab-nav" id="tab-nav">
+      <button data-tab="kalender" class="aktif">Kalender &amp; Booking</button>
+      <button data-tab="riwayat">Riwayat</button>
+      <button data-tab="pelanggan">Pelanggan</button>
+      <button data-tab="cetak">Cetak Jadwal</button>
+      <button data-tab="backup">Backup &amp; Restore</button>
+      <button data-tab="kelola-admin" id="tab-kelola-admin" class="hidden">Kelola Admin</button>
+    </div>
+
+    <!-- TAB: KALENDER -->
+    <div class="tab-panel" id="panel-kalender">
+      <div class="venue-tabs" id="venue-tabs"></div>
+      <div class="kalender-header">
+        <h2 id="kalender-judul">Memuat...</h2>
+        <div class="kalender-nav">
+          <button id="btn-bulan-prev">&larr; Sebelumnya</button>
+          <button id="btn-bulan-next">Berikutnya &rarr;</button>
+        </div>
+      </div>
+      <div class="grid-hari-label">
+        <span>Ahad</span><span>Senin</span><span>Selasa</span><span>Rabu</span><span>Kamis</span><span>Jum'at</span><span>Sabtu</span>
+      </div>
+      <div class="grid-kalender" id="grid-kalender"></div>
+
+      <div class="detail-hari hidden" id="detail-hari">
+        <h3 id="detail-judul-venue"></h3>
+        <div class="tanggal-panjang" id="detail-tanggal"></div>
+        <div id="detail-lapangan-list"></div>
+      </div>
+    </div>
+
+    <!-- TAB: RIWAYAT -->
+    <div class="tab-panel hidden" id="panel-riwayat">
+      <h2 style="margin-bottom:16px;">Riwayat Booking &amp; Pembatalan</h2>
+      <div id="riwayat-list"></div>
+    </div>
+
+    <!-- TAB: PELANGGAN -->
+    <div class="tab-panel hidden" id="panel-pelanggan">
+      <h2 style="margin-bottom:16px;">Data Pelanggan</h2>
+      <input type="text" id="cari-pelanggan" placeholder="Cari nama, no. WA, atau nama tim..." style="max-width:360px;">
+      <div id="pelanggan-list"></div>
+    </div>
+
+    <!-- TAB: CETAK -->
+    <div class="tab-panel hidden" id="panel-cetak">
+      <h2 style="margin-bottom:16px;">Cetak Jadwal</h2>
+      <div class="venue-card" style="display:block;">
+        <h3 style="font-size:15px; margin-bottom:12px;">Jadwal Harian</h3>
+        <div class="flex gap" style="align-items:flex-end; flex-wrap:wrap;">
+          <div style="min-width:220px;"><label>Tempat</label><select id="cetak-harian-venue"></select></div>
+          <div><label>Tanggal</label><input type="date" id="cetak-harian-tanggal"></div>
+          <button class="btn btn-gold" id="btn-cetak-harian" style="height:44px;">Buka &amp; Cetak</button>
+        </div>
+      </div>
+      <div class="venue-card" style="display:block; margin-top:18px;">
+        <h3 style="font-size:15px; margin-bottom:12px;">Jadwal Bulanan</h3>
+        <div class="flex gap" style="align-items:flex-end; flex-wrap:wrap;">
+          <div style="min-width:220px;"><label>Tempat</label><select id="cetak-bulanan-venue"></select></div>
+          <div><label>Bulan</label><input type="month" id="cetak-bulanan-bulan"></div>
+          <button class="btn btn-gold" id="btn-cetak-bulanan" style="height:44px;">Buka &amp; Cetak</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: BACKUP -->
+    <div class="tab-panel hidden" id="panel-backup">
+      <h2 style="margin-bottom:16px;">Backup &amp; Restore Database</h2>
+      <div id="backup-hanya-utama">
+        <div class="flex gap mb" style="flex-wrap:wrap;">
+          <button class="btn btn-gold" id="btn-buat-backup">Buat Backup Sekarang</button>
+          <label class="btn btn-outline" style="cursor:pointer; margin:0;">
+            Unggah File Backup untuk Restore
+            <input type="file" id="input-upload-backup" accept=".dump" style="display:none;">
+          </label>
+        </div>
+        <div id="backup-pesan"></div>
+        <div id="backup-list"></div>
+      </div>
+    </div>
+
+    <!-- TAB: KELOLA ADMIN -->
+    <div class="tab-panel hidden" id="panel-kelola-admin">
+      <h2 style="margin-bottom:16px;">Kelola Akun Admin</h2>
+      <button class="btn btn-gold mb" id="btn-tambah-admin">+ Tambah Admin Baru</button>
+      <div id="admin-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL: Buat Booking -->
+<div class="overlay hidden" id="modal-booking">
+  <div class="modal">
+    <span class="tutup" id="tutup-modal-booking">&times;</span>
+    <h3>Buat Booking</h3>
+    <div id="booking-ringkasan-slot" class="text-dim mb" style="font-size:13px;"></div>
+    <div id="booking-error"></div>
+    <form id="form-booking">
+      <label>Nama Pemesan</label>
+      <input type="text" id="booking-nama" required>
+      <label>Nomor WhatsApp</label>
+      <input type="text" id="booking-wa" required placeholder="628xxxxxxxxxx">
+      <label>Nama Tim (opsional)</label>
+      <input type="text" id="booking-tim">
+      <label>Catatan (opsional)</label>
+      <textarea id="booking-catatan" rows="2"></textarea>
+      <button type="submit" class="btn btn-gold" style="width:100%;">Simpan Booking</button>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: Batalkan Booking -->
+<div class="overlay hidden" id="modal-batal">
+  <div class="modal">
+    <span class="tutup" id="tutup-modal-batal">&times;</span>
+    <h3>Batalkan Booking</h3>
+    <div id="batal-ringkasan-slot" class="text-dim mb" style="font-size:13px;"></div>
+    <div id="batal-error"></div>
+    <form id="form-batal">
+      <label>Alasan Pembatalan</label>
+      <textarea id="batal-alasan" rows="3" required></textarea>
+      <button type="submit" class="btn btn-danger" style="width:100%;">Batalkan Booking</button>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: Ganti Password -->
+<div class="overlay hidden" id="modal-password">
+  <div class="modal">
+    <span class="tutup" id="tutup-modal-password">&times;</span>
+    <h3>Ganti Password</h3>
+    <div id="password-error"></div>
+    <div id="password-sukses"></div>
+    <form id="form-password">
+      <label>Password Lama</label>
+      <input type="password" id="password-lama" required>
+      <label>Password Baru</label>
+      <input type="password" id="password-baru" required minlength="6">
+      <button type="submit" class="btn btn-gold" style="width:100%;">Simpan Password Baru</button>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: Tambah Admin -->
+<div class="overlay hidden" id="modal-tambah-admin">
+  <div class="modal">
+    <span class="tutup" id="tutup-modal-tambah-admin">&times;</span>
+    <h3>Tambah Admin Baru</h3>
+    <div id="tambah-admin-error"></div>
+    <form id="form-tambah-admin">
+      <label>Nama Lengkap</label>
+      <input type="text" id="ta-nama" required>
+      <label>Username</label>
+      <input type="text" id="ta-username" required>
+      <label>Password</label>
+      <input type="password" id="ta-password" required minlength="6">
+      <label>Role</label>
+      <select id="ta-role">
+        <option value="admin_khusus">Admin Khusus (1 tempat)</option>
+        <option value="admin_utama">Admin Utama (semua tempat)</option>
+      </select>
+      <div id="ta-venue-wrap">
+        <label>Tempat</label>
+        <select id="ta-venue"></select>
+      </div>
+      <button type="submit" class="btn btn-gold" style="width:100%;">Buat Admin</button>
+    </form>
+  </div>
+</div>
+
+<script src="/js/admin.js"></script>
+</body>
+</html>
