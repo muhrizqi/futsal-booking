@@ -76,6 +76,20 @@
     tampilkanLogin();
   });
 
+  // ---------------- Penutup modal universal (klik di luar kotak / tombol Escape) ----------------
+  // Ini jaring pengaman: kalau modal manapun terbuka dan pengguna tidak menemukan tombol "x",
+  // klik area gelap di luar kotak atau tekan Escape akan menutupnya.
+  document.querySelectorAll('.overlay').forEach((ov) => {
+    ov.addEventListener('click', (e) => {
+      if (e.target === ov) ov.classList.add('hidden');
+    });
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.overlay:not(.hidden)').forEach((ov) => ov.classList.add('hidden'));
+    }
+  });
+
   // ---------------- TABS ----------------
   el('tab-nav').addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-tab]');
@@ -249,6 +263,7 @@
     el('modal-booking').classList.remove('hidden');
   }
   el('tutup-modal-booking').addEventListener('click', () => el('modal-booking').classList.add('hidden'));
+  el('booking-batal').addEventListener('click', () => el('modal-booking').classList.add('hidden'));
 
   el('form-booking').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -662,6 +677,7 @@
     el('modal-tambah-admin').classList.remove('hidden');
   });
   el('tutup-modal-tambah-admin').addEventListener('click', () => el('modal-tambah-admin').classList.add('hidden'));
+  el('ta-batal').addEventListener('click', () => el('modal-tambah-admin').classList.add('hidden'));
   el('ta-role').addEventListener('change', () => {
     el('ta-venue-wrap').classList.toggle('hidden', el('ta-role').value === 'admin_utama');
   });

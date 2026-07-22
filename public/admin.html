@@ -189,7 +189,10 @@
 
       <label>Catatan Booking (opsional)</label>
       <textarea id="booking-catatan" rows="2"></textarea>
-      <button type="submit" class="btn btn-gold" style="width:100%;">Simpan Booking</button>
+      <div class="flex gap">
+        <button type="button" class="btn btn-outline" id="booking-batal" style="flex:1;">Batal</button>
+        <button type="submit" class="btn btn-gold" style="flex:1;">Simpan Booking</button>
+      </div>
     </form>
   </div>
 </div>
@@ -282,7 +285,10 @@
         <label>Tempat</label>
         <select id="ta-venue"></select>
       </div>
-      <button type="submit" class="btn btn-gold" style="width:100%;">Buat Admin</button>
+      <div class="flex gap">
+        <button type="button" class="btn btn-outline" id="ta-batal" style="flex:1;">Batal</button>
+        <button type="submit" class="btn btn-gold" style="flex:1;">Buat Admin</button>
+      </div>
     </form>
   </div>
 </div>
