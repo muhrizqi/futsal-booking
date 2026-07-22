@@ -218,6 +218,13 @@ a { color: inherit; }
 .sel-tanggal.status-penuh .ket { color: var(--merah); }
 .sel-tanggal.status-penuh { opacity: 0.75; }
 .sel-tanggal.dipilih { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
+.sel-tanggal.lewat {
+  cursor: not-allowed;
+  opacity: 0.35;
+  background: var(--bg-alt);
+}
+.sel-tanggal.lewat:hover { border-color: var(--line); }
+.sel-tanggal.lewat .ket { color: var(--text-faint); }
 .sel-tanggal.hari-ini::after {
   content: '';
   position: absolute; top: 6px; right: 6px;

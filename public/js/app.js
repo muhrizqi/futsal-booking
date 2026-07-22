@@ -88,12 +88,18 @@
 
     data.hari.forEach((h) => {
       const sel = document.createElement('div');
+      const sudahLewat = h.tanggal < hariIniISO();
       sel.className = `sel-tanggal status-${h.status}`;
       if (h.tanggal === hariIniISO()) sel.classList.add('hari-ini');
       if (h.tanggal === state.tanggalDipilih) sel.classList.add('dipilih');
-      const ketLabel = h.status === 'kosong' ? 'Kosong' : (h.status === 'penuh' ? 'Penuh' : `${h.kosong} slot`);
-      sel.innerHTML = `<span class="angka">${h.tanggalNum}</span><span class="ket">${ketLabel}</span>`;
-      sel.addEventListener('click', () => pilihTanggal(h.tanggal));
+      if (sudahLewat) {
+        sel.classList.add('lewat');
+        sel.innerHTML = `<span class="angka">${h.tanggalNum}</span><span class="ket">Sudah lewat</span>`;
+      } else {
+        const ketLabel = h.status === 'kosong' ? 'Kosong' : (h.status === 'penuh' ? 'Penuh' : `${h.kosong} slot`);
+        sel.innerHTML = `<span class="angka">${h.tanggalNum}</span><span class="ket">${ketLabel}</span>`;
+        sel.addEventListener('click', () => pilihTanggal(h.tanggal));
+      }
       grid.appendChild(sel);
     });
   }
