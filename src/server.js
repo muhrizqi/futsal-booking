@@ -10,6 +10,7 @@ const bookingsRouter = require('./routes/bookings');
 const customersRouter = require('./routes/customers');
 const backupRouter = require('./routes/backup');
 const printRouter = require('./routes/print');
+const pengaturanRouter = require('./routes/pengaturan');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use('/api/bookings', bookingsRouter);
 app.use('/api/customers', customersRouter);
 app.use('/api/backup', backupRouter);
 app.use('/api/print', printRouter);
+app.use('/api/pengaturan', pengaturanRouter);
 
 app.get('/api/health', (req, res) => res.json({ ok: true, waktu: new Date().toISOString() }));
 

@@ -53,6 +53,7 @@
       <button data-tab="pelanggan">Pelanggan</button>
       <button data-tab="cetak">Cetak Jadwal</button>
       <button data-tab="backup">Backup &amp; Restore</button>
+      <button data-tab="pengaturan" id="tab-pengaturan" class="hidden">Pengaturan</button>
       <button data-tab="kelola-admin" id="tab-kelola-admin" class="hidden">Kelola Admin</button>
     </div>
 
@@ -128,6 +129,13 @@
       </div>
     </div>
 
+    <!-- TAB: PENGATURAN -->
+    <div class="tab-panel hidden" id="panel-pengaturan">
+      <h2 style="margin-bottom:16px;">Pengaturan Tempat</h2>
+      <select id="pengaturan-venue-select" class="venue-select-pengaturan"></select>
+      <div id="pengaturan-konten"></div>
+    </div>
+
     <!-- TAB: KELOLA ADMIN -->
     <div class="tab-panel hidden" id="panel-kelola-admin">
       <h2 style="margin-bottom:16px;">Kelola Akun Admin</h2>
@@ -152,25 +160,86 @@
       <input type="text" id="booking-wa" required placeholder="628xxxxxxxxxx">
       <label>Nama Tim (opsional)</label>
       <input type="text" id="booking-tim">
-      <label>Catatan (opsional)</label>
+
+      <label>Status Pembayaran</label>
+      <select id="booking-status-bayar">
+        <option value="belum_bayar">Belum Bayar</option>
+        <option value="dp">DP (Uang Muka)</option>
+        <option value="lunas">Lunas</option>
+      </select>
+
+      <label>Metode Pembayaran (opsional)</label>
+      <select id="booking-metode-bayar">
+        <option value="">- Belum ditentukan -</option>
+        <option value="cash">Cash</option>
+        <option value="transfer">Transfer</option>
+      </select>
+
+      <div id="booking-field-cash" class="field-kondisional hidden">
+        <label>Dana Cash Dipegang Oleh</label>
+        <input type="text" id="booking-cash-oleh" placeholder="Nama admin/kasir yang memegang uang">
+      </div>
+      <div id="booking-field-transfer" class="field-kondisional hidden">
+        <label>Rekening Tujuan Transfer</label>
+        <input type="text" id="booking-rekening" placeholder="Nama bank, no. rekening, a.n. ...">
+      </div>
+
+      <label>Catatan Pembayaran (opsional, hanya terlihat admin)</label>
+      <textarea id="booking-catatan-bayar" rows="2"></textarea>
+
+      <label>Catatan Booking (opsional)</label>
       <textarea id="booking-catatan" rows="2"></textarea>
       <button type="submit" class="btn btn-gold" style="width:100%;">Simpan Booking</button>
     </form>
   </div>
 </div>
 
-<!-- MODAL: Batalkan Booking -->
-<div class="overlay hidden" id="modal-batal">
+<!-- MODAL: Detail & Edit Booking -->
+<div class="overlay hidden" id="modal-detail-booking">
   <div class="modal">
-    <span class="tutup" id="tutup-modal-batal">&times;</span>
-    <h3>Batalkan Booking</h3>
-    <div id="batal-ringkasan-slot" class="text-dim mb" style="font-size:13px;"></div>
-    <div id="batal-error"></div>
-    <form id="form-batal">
-      <label>Alasan Pembatalan</label>
-      <textarea id="batal-alasan" rows="3" required></textarea>
-      <button type="submit" class="btn btn-danger" style="width:100%;">Batalkan Booking</button>
+    <span class="tutup" id="tutup-modal-detail-booking">&times;</span>
+    <h3>Detail Booking</h3>
+    <div id="detail-ringkasan-slot" class="text-dim mb" style="font-size:13px;"></div>
+    <div id="detail-error"></div>
+    <div id="detail-sukses"></div>
+    <form id="form-detail-booking">
+      <label>Status Pembayaran</label>
+      <select id="detail-status-bayar">
+        <option value="belum_bayar">Belum Bayar</option>
+        <option value="dp">DP (Uang Muka)</option>
+        <option value="lunas">Lunas</option>
+      </select>
+
+      <label>Metode Pembayaran</label>
+      <select id="detail-metode-bayar">
+        <option value="">- Belum ditentukan -</option>
+        <option value="cash">Cash</option>
+        <option value="transfer">Transfer</option>
+      </select>
+
+      <div id="detail-field-cash" class="field-kondisional hidden">
+        <label>Dana Cash Dipegang Oleh</label>
+        <input type="text" id="detail-cash-oleh">
+      </div>
+      <div id="detail-field-transfer" class="field-kondisional hidden">
+        <label>Rekening Tujuan Transfer</label>
+        <input type="text" id="detail-rekening">
+      </div>
+
+      <label>Catatan Pembayaran</label>
+      <textarea id="detail-catatan-bayar" rows="2"></textarea>
+
+      <label>Catatan Booking</label>
+      <textarea id="detail-catatan" rows="2"></textarea>
+
+      <button type="submit" class="btn btn-gold" style="width:100%;">Simpan Perubahan</button>
     </form>
+
+    <div style="border-top:1px dashed var(--line); margin-top:18px; padding-top:18px;">
+      <label>Batalkan Booking Ini</label>
+      <textarea id="detail-alasan-batal" rows="2" placeholder="Alasan pembatalan..."></textarea>
+      <button type="button" class="btn btn-danger" style="width:100%;" id="btn-batalkan-dari-detail">Batalkan Booking</button>
+    </div>
   </div>
 </div>
 

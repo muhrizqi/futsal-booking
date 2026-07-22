@@ -97,7 +97,8 @@ router.get('/:slug/hari', authOpsional, async (req, res) => {
 
     const bookedRows = (await pool.query(
       `SELECT b.id, b.court_id, b.jam_mulai::text as jam_mulai, b.jam_selesai::text as jam_selesai,
-              b.harga, c.nama_tim, c.nama as nama_pelanggan, c.no_wa
+              b.harga, b.status_pembayaran, b.metode_pembayaran, b.cash_dipegang_oleh, b.rekening_tujuan, b.catatan_pembayaran, b.catatan,
+              c.nama_tim, c.nama as nama_pelanggan, c.no_wa
        FROM bookings b
        JOIN customers c ON c.id = b.customer_id
        WHERE b.venue_id = $1 AND b.tanggal = $2 AND b.status = 'booked'`,
@@ -116,6 +117,12 @@ router.get('/:slug/hari', authOpsional, async (req, res) => {
             info.booking_id = bk.id;
             info.nama_pelanggan = bk.nama_pelanggan;
             info.no_wa = bk.no_wa;
+            info.status_pembayaran = bk.status_pembayaran;
+            info.metode_pembayaran = bk.metode_pembayaran;
+            info.cash_dipegang_oleh = bk.cash_dipegang_oleh;
+            info.rekening_tujuan = bk.rekening_tujuan;
+            info.catatan_pembayaran = bk.catatan_pembayaran;
+            info.catatan = bk.catatan;
           }
           return info;
         }

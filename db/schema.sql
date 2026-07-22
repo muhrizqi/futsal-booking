@@ -45,7 +45,8 @@ CREATE TABLE IF NOT EXISTS price_rules (
     jam_mulai    TIME NOT NULL,
     jam_selesai  TIME NOT NULL,
     harga        NUMERIC(12,2) NOT NULL,
-    urutan       INT NOT NULL DEFAULT 0
+    urutan       INT NOT NULL DEFAULT 0,
+    UNIQUE (venue_id, jam_mulai, jam_selesai)
 );
 
 -- ---------------------------------------------------------------------
@@ -123,6 +124,25 @@ CREATE TABLE IF NOT EXISTS booking_history (
 
 CREATE INDEX IF NOT EXISTS idx_history_booking ON booking_history(booking_id);
 
+-- Jaga-jaga untuk instalasi yang sudah berjalan sebelum constraint ini ditambahkan:
+-- hapus baris harga yang kebetulan dobel, lalu pasang constraint unik kalau belum ada.
+-- Wajib dijalankan SEBELUM seed data di bawah, karena seed data memakai ON CONFLICT.
+DELETE FROM price_rules a USING price_rules b
+WHERE a.id > b.id
+  AND a.venue_id = b.venue_id
+  AND a.jam_mulai = b.jam_mulai
+  AND a.jam_selesai = b.jam_selesai;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'price_rules_venue_id_jam_mulai_jam_selesai_key'
+  ) THEN
+    ALTER TABLE price_rules ADD CONSTRAINT price_rules_venue_id_jam_mulai_jam_selesai_key
+      UNIQUE (venue_id, jam_mulai, jam_selesai);
+  END IF;
+END $$;
+
 -- =====================================================================
 -- SEED DATA — Venue, Courts, Harga sesuai data yang diberikan
 -- =====================================================================
@@ -154,29 +174,39 @@ ON CONFLICT DO NOTHING;
 
 -- Harga Jogokariyan Futsal (per jam)
 INSERT INTO price_rules (venue_id, jam_mulai, jam_selesai, harga, urutan)
-SELECT id, '06:00', '15:00', 115000, 1 FROM venues WHERE slug = 'jogokariyan-futsal';
+SELECT id, '06:00', '15:00', 115000, 1 FROM venues WHERE slug = 'jogokariyan-futsal'
+ON CONFLICT (venue_id, jam_mulai, jam_selesai) DO NOTHING;
 INSERT INTO price_rules (venue_id, jam_mulai, jam_selesai, harga, urutan)
-SELECT id, '15:00', '24:00', 150000, 2 FROM venues WHERE slug = 'jogokariyan-futsal';
+SELECT id, '15:00', '24:00', 150000, 2 FROM venues WHERE slug = 'jogokariyan-futsal'
+ON CONFLICT (venue_id, jam_mulai, jam_selesai) DO NOTHING;
 
 -- Harga 4R Futsal (per jam)
 INSERT INTO price_rules (venue_id, jam_mulai, jam_selesai, harga, urutan)
-SELECT id, '06:00', '12:00', 80000, 1 FROM venues WHERE slug = '4r-futsal';
+SELECT id, '06:00', '12:00', 80000, 1 FROM venues WHERE slug = '4r-futsal'
+ON CONFLICT (venue_id, jam_mulai, jam_selesai) DO NOTHING;
 INSERT INTO price_rules (venue_id, jam_mulai, jam_selesai, harga, urutan)
-SELECT id, '12:00', '16:00', 100000, 2 FROM venues WHERE slug = '4r-futsal';
+SELECT id, '12:00', '16:00', 100000, 2 FROM venues WHERE slug = '4r-futsal'
+ON CONFLICT (venue_id, jam_mulai, jam_selesai) DO NOTHING;
 INSERT INTO price_rules (venue_id, jam_mulai, jam_selesai, harga, urutan)
-SELECT id, '16:00', '24:00', 135000, 3 FROM venues WHERE slug = '4r-futsal';
+SELECT id, '16:00', '24:00', 135000, 3 FROM venues WHERE slug = '4r-futsal'
+ON CONFLICT (venue_id, jam_mulai, jam_selesai) DO NOTHING;
 
 -- Harga KALISI Mini Soccer (per slot 1.5 jam, sesuai rentang)
 INSERT INTO price_rules (venue_id, jam_mulai, jam_selesai, harga, urutan)
-SELECT id, '06:00', '09:00', 500000, 1 FROM venues WHERE slug = 'kalisi-mini-soccer';
+SELECT id, '06:00', '09:00', 500000, 1 FROM venues WHERE slug = 'kalisi-mini-soccer'
+ON CONFLICT (venue_id, jam_mulai, jam_selesai) DO NOTHING;
 INSERT INTO price_rules (venue_id, jam_mulai, jam_selesai, harga, urutan)
-SELECT id, '09:00', '15:00', 300000, 2 FROM venues WHERE slug = 'kalisi-mini-soccer';
+SELECT id, '09:00', '15:00', 300000, 2 FROM venues WHERE slug = 'kalisi-mini-soccer'
+ON CONFLICT (venue_id, jam_mulai, jam_selesai) DO NOTHING;
 INSERT INTO price_rules (venue_id, jam_mulai, jam_selesai, harga, urutan)
-SELECT id, '15:00', '16:30', 500000, 3 FROM venues WHERE slug = 'kalisi-mini-soccer';
+SELECT id, '15:00', '16:30', 500000, 3 FROM venues WHERE slug = 'kalisi-mini-soccer'
+ON CONFLICT (venue_id, jam_mulai, jam_selesai) DO NOTHING;
 INSERT INTO price_rules (venue_id, jam_mulai, jam_selesai, harga, urutan)
-SELECT id, '16:30', '18:00', 700000, 4 FROM venues WHERE slug = 'kalisi-mini-soccer';
+SELECT id, '16:30', '18:00', 700000, 4 FROM venues WHERE slug = 'kalisi-mini-soccer'
+ON CONFLICT (venue_id, jam_mulai, jam_selesai) DO NOTHING;
 INSERT INTO price_rules (venue_id, jam_mulai, jam_selesai, harga, urutan)
-SELECT id, '18:00', '24:00', 800000, 5 FROM venues WHERE slug = 'kalisi-mini-soccer';
+SELECT id, '18:00', '24:00', 800000, 5 FROM venues WHERE slug = 'kalisi-mini-soccer'
+ON CONFLICT (venue_id, jam_mulai, jam_selesai) DO NOTHING;
 
 -- Admin utama default (username: superadmin / password: ganti_password_ini)
 -- Hash di bawah adalah bcrypt utk password "admin123" — WAJIB DIGANTI setelah install!

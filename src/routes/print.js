@@ -66,21 +66,23 @@ router.get('/harian', wajibLogin, async (req, res) => {
     const slotTemplate = bangkitkanSlotHarian(formatJam(venue.jam_buka), formatJam(venue.jam_tutup), venue.slot_menit, rules);
 
     const bookedRows = (await pool.query(
-      `SELECT b.court_id, b.jam_mulai::text as jam_mulai, c.nama_tim, c.nama as nama_pelanggan, c.no_wa
+      `SELECT b.court_id, b.jam_mulai::text as jam_mulai, b.status_pembayaran, c.nama_tim, c.nama as nama_pelanggan, c.no_wa
        FROM bookings b JOIN customers c ON c.id = b.customer_id
        WHERE b.venue_id = $1 AND b.tanggal = $2 AND b.status = 'booked'`,
       [venue_id, tanggal],
     )).rows;
 
+    const LABEL_BAYAR = { belum_bayar: 'Belum Bayar', dp: 'DP', lunas: 'Lunas' };
+
     let tabel = '';
     courts.forEach((court) => {
-      tabel += `<h3>Lapangan ${court.nama}</h3><table><tr><th>Jam</th><th>Status</th><th>Tim / Pelanggan</th><th>No. WA</th></tr>`;
+      tabel += `<h3>Lapangan ${court.nama}</h3><table><tr><th>Jam</th><th>Status</th><th>Tim / Pelanggan</th><th>No. WA</th><th>Pembayaran</th></tr>`;
       slotTemplate.forEach((s) => {
         const bk = bookedRows.find((b) => b.court_id === court.id && formatJam(b.jam_mulai) === s.jam_mulai);
         if (bk) {
-          tabel += `<tr class="terisi"><td>${s.jam_mulai} - ${s.jam_selesai}</td><td>Terisi</td><td>${bk.nama_tim || bk.nama_pelanggan}</td><td>${bk.no_wa}</td></tr>`;
+          tabel += `<tr class="terisi"><td>${s.jam_mulai} - ${s.jam_selesai}</td><td>Terisi</td><td>${bk.nama_tim || bk.nama_pelanggan}</td><td>${bk.no_wa}</td><td>${LABEL_BAYAR[bk.status_pembayaran] || '-'}</td></tr>`;
         } else {
-          tabel += `<tr class="kosong"><td>${s.jam_mulai} - ${s.jam_selesai}</td><td>Kosong</td><td>-</td><td>-</td></tr>`;
+          tabel += `<tr class="kosong"><td>${s.jam_mulai} - ${s.jam_selesai}</td><td>Kosong</td><td>-</td><td>-</td><td>-</td></tr>`;
         }
       });
       tabel += '</table>';
