@@ -200,6 +200,54 @@ Kalau Anda pakai provider lain (Wablas, WhaCenter, dll) yang API-nya berbeda ben
 - Kalau bentuk API provider Anda berbeda dari itu, sesuaikan langsung fungsi
   `kirimPesanMentah` di `src/utils/wa.js`
 
+### Alternatif: WAHA (self-hosted, gratis, tanpa biaya per pesan)
+
+Kalau server EasyPanel Anda punya service **WAHA** (WhatsApp HTTP API self-hosted),
+sistem ini sudah mendukungnya langsung — tinggal pindah environment variable, tidak
+perlu ubah kode.
+
+**Yang perlu disiapkan dulu di sisi WAHA:**
+1. Pastikan service WAHA sudah jalan dan sudah **scan QR** untuk menghubungkan nomor WA
+   (lewat dashboard WAHA atau endpoint `/api/{session}/auth/qr`)
+2. Catat **API Key** WAHA Anda (env `WAHA_API_KEY` di service WAHA saat setup)
+3. Catat domain/URL service WAHA (mis. `https://waha.lewat.web.id`)
+
+**Set environment variable di service App:**
+```
+WA_GATEWAY_PROVIDER=waha
+WA_GATEWAY_URL=https://waha.lewat.web.id/api/sendText
+WA_GATEWAY_TOKEN=<API Key WAHA Anda>
+WA_GATEWAY_SESSION=default
+```
+
+**Cara mengisi target notifikasi (tab Pengaturan) tetap sama seperti biasa:**
+- Tipe "Nomor WA": isi nomor polos seperti biasa (mis. `6281234567890`) — sistem otomatis
+  menambahkan akhiran `@c.us` yang dibutuhkan WAHA
+- Tipe "Grup WA": isi ID grup **lengkap dengan akhirannya**, format `xxxxxxxxxx@g.us`.
+  Cara mendapatkan ID grup: buka Swagger WAHA Anda (`https://waha.lewat.web.id/`), cari
+  endpoint **GET /api/{session}/chats**, jalankan, cari nama grup yang dituju, salin
+  nilai `id`-nya persis (termasuk `@g.us`)
+
+**Hal-hal yang perlu dipertimbangkan sebelum pindah ke WAHA:**
+
+| | Fonnte (SaaS) | WAHA (self-hosted) |
+|---|---|---|
+| Biaya | Ada biaya paket/kuota pesan | Gratis (pakai resource server Anda sendiri) |
+| Beban server | Tidak membebani server Anda sama sekali | Menambah pemakaian RAM/CPU server EasyPanel Anda terus-menerus, karena harus menjaga koneksi WhatsApp tetap hidup |
+| Uptime nomor WA | Dikelola pihak Fonnte | Tanggung jawab Anda — kalau service WAHA down/restart, sesi WA bisa perlu di-scan ulang |
+| Setup ID grup | Dari menu Device di dashboard Fonnte | Dari endpoint API `/chats` (sedikit lebih teknis) |
+| Retensi data pesan | Di server Fonnte | Sepenuhnya di server Anda sendiri (lebih privat) |
+
+**Rekomendasi:** kalau resource server EasyPanel Anda pas-pasan (RAM kecil), pilih **engine
+NOWEB** saat setup WAHA (bukan WEBJS) — NOWEB tidak menjalankan browser Chromium di
+belakang layar sehingga jauh lebih ringan, cocok untuk VPS kecil. Juga pastikan sesi WAHA
+disimpan di **volume persisten** (biasanya sudah default di template EasyPanel), supaya
+tidak perlu scan ulang QR setiap kali service di-restart/redeploy.
+
+Anda bisa uji coba dulu pakai tombol **"Kirim Uji Coba"** di tab Pengaturan setelah ganti
+environment variable — kalau berhasil, tinggal lanjut pakai WAHA sepenuhnya; kalau ada
+masalah, tinggal kembalikan `WA_GATEWAY_PROVIDER` ke `fonnte` tanpa ubah kode apa pun.
+
 ### Mengatur target notifikasi per tempat
 
 Login sebagai admin utama → tab **Pengaturan** → pilih tempat → bagian **Notifikasi
