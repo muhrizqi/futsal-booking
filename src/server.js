@@ -29,6 +29,10 @@ app.use('/api/pengaturan', pengaturanRouter);
 
 app.get('/api/health', (req, res) => res.json({ ok: true, waktu: new Date().toISOString() }));
 
+// Panel admin diakses lewat /atur (sengaja bukan "/admin" biar tidak umum/gampang ditebak,
+// tidak ditautkan dari halaman publik, harus diketik langsung)
+app.get('/atur', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'atur.html')));
+
 // Frontend statis (halaman pelanggan & admin)
 app.use(express.static(path.join(__dirname, '..', 'public')));
 

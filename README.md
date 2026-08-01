@@ -10,7 +10,7 @@ booking/cancel, mengelola admin, dan backup/restore database.
 - Halaman publik (`/`) untuk pelanggan: lihat jadwal, lihat nama tim yang sudah booking,
   pilih slot lalu klik tombol **Hubungi Admin via WhatsApp** (nomor WA berbeda per tempat,
   pesan otomatis terisi detail booking).
-- Panel admin (`/admin.html`):
+- Panel admin (`/atur`):
   - **Admin Utama**: bisa booking/cancel di ketiga tempat, kelola akun admin lain, dan
     satu-satunya yang bisa mengubah **Pengaturan** (jam, harga, no WA admin, notifikasi).
   - **Admin Khusus**: hanya bisa booking/cancel di satu tempat yang ditentukan.
@@ -97,7 +97,7 @@ Cara paling ringan dan konsisten adalah pakai `docker-compose.yml` yang sudah di
    (Hijau/Biru untuk kedua futsal, Lapangan Utama untuk mini soccer), dan seluruh
    aturan harga sesuai data yang diberikan.
 
-7. **Login pertama kali** di `https://domain-anda.com/admin.html` dengan:
+7. **Login pertama kali** di `https://domain-anda.com/atur` dengan:
    - Username: `superadmin`
    - Password: `admin123`
 
@@ -152,6 +152,25 @@ Untuk backup otomatis harian, tambahkan ke crontab container atau host:
 0 2 * * * /app/scripts/backup.sh >> /app/backups/backup.log 2>&1
 ```
 File backup lebih dari 30 hari akan otomatis dibersihkan oleh `backup.sh`.
+
+## Akses Panel Admin
+
+Tombol "Login Admin" di halaman pelanggan sudah dihapus — panel admin tidak ditautkan
+dari halaman publik sama sekali. Untuk mengaksesnya, ketik langsung:
+
+```
+https://jf.lewat.web.id/atur
+https://4r.lewat.web.id/atur
+https://kalisiminisoccer.lewat.web.id/atur
+https://olahraga.lewat.web.id/atur
+```
+
+(semua domain menuju panel admin yang sama, karena satu backend yang sama).
+
+Catatan: ini hanya menyembunyikan pintu masuknya dari pelanggan biasa, **bukan** lapisan
+keamanan utama — keamanan sesungguhnya tetap dari sistem login (username/password) di
+baliknya. Tetap pastikan password `superadmin` sudah diganti dari default, dan jangan
+bagikan link `/atur` ke pihak yang tidak berkepentingan.
 
 ## Notifikasi WhatsApp
 
@@ -296,7 +315,7 @@ npm start
 ```
 
 Buka `http://localhost:3000` untuk halaman pelanggan, dan
-`http://localhost:3000/admin.html` untuk panel admin.
+`http://localhost:3000/atur` untuk panel admin.
 
 ## Catatan Keamanan
 
