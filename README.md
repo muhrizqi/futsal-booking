@@ -206,6 +206,54 @@ Soccer) di dropdown atas:
 
 Perubahan langsung berlaku saat itu juga, tidak perlu restart atau redeploy.
 
+## Link Terpisah per Tempat (Subdomain)
+
+Selain domain utama (mis. `https://olahraga.lewat.web.id`) yang menampilkan ketiga
+tempat dengan tab pilihan, sistem ini juga mendukung **domain khusus per tempat** yang
+langsung menampilkan jadwal tempat itu saja (tanpa tab, tanpa perlu pilih dulu):
+
+| Domain | Tempat |
+|---|---|
+| `jf.lewat.web.id` | Jogokariyan Futsal |
+| `4r.lewat.web.id` | 4R Futsal |
+| `kalisiminisoccer.lewat.web.id` | KALISI Mini Soccer |
+
+Ini **backend yang sama, satu container yang sama** — bukan instalasi terpisah. Yang
+perlu dilakukan hanya menambahkan domain-domain tersebut ke service App yang sudah ada
+di EasyPanel, lalu sistem otomatis mendeteksi lewat domain mana pelanggan mengakses.
+
+### Langkah di EasyPanel
+
+1. Buka service **App** (yang sama dengan yang sudah jalan di `olahraga.lewat.web.id`)
+2. Tab **Domains** → **Add Domain**, tambahkan satu per satu:
+   - `jf.lewat.web.id`
+   - `4r.lewat.web.id`
+   - `kalisiminisoccer.lewat.web.id`
+3. Untuk masing-masing, set **Proxy Port** ke `3000` (sama seperti domain utama)
+4. Pastikan DNS masing-masing subdomain sudah diarahkan (A record) ke IP server Anda —
+   kalau domain utama `lewat.web.id` sudah pakai wildcard DNS (`*.lewat.web.id`), biasanya
+   subdomain baru otomatis langsung aktif tanpa perlu tambah DNS record lagi
+5. Aktifkan HTTPS/Let's Encrypt untuk masing-masing domain di tab yang sama
+
+Tidak perlu redeploy atau migrate database — cukup update kode frontend (lihat langkah
+"Memperbarui Instalasi" di bawah) lalu tambahkan domainnya di EasyPanel.
+
+### Menambah tempat baru di kemudian hari
+
+Kalau suatu saat menambah tempat ke-4 dan mau dikasih subdomain sendiri juga, edit
+`PETA_DOMAIN_VENUE` di awal file `public/js/app.js`:
+
+```js
+const PETA_DOMAIN_VENUE = {
+  'jf.lewat.web.id': 'jogokariyan-futsal',
+  '4r.lewat.web.id': '4r-futsal',
+  'kalisiminisoccer.lewat.web.id': 'kalisi-mini-soccer',
+  'tempatbaru.lewat.web.id': 'slug-tempat-baru', // tambahkan baris seperti ini
+};
+```
+
+`slug-tempat-baru` harus persis sama dengan kolom `slug` di tabel `venues`.
+
 ## Memperbarui Instalasi yang Sudah Berjalan (Upgrade)
 
 Kalau Anda sudah pernah deploy sistem ini sebelumnya dan ingin mengambil update terbaru

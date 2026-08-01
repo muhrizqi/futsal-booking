@@ -1,4 +1,13 @@
 (() => {
+  // Peta domain khusus -> slug venue. Kalau pelanggan mengakses lewat salah satu domain ini,
+  // halaman otomatis terkunci ke tempat itu saja (tab pilihan tempat disembunyikan).
+  // Domain lain (mis. domain utama olahraga.lewat.web.id) tetap menampilkan ketiga tempat.
+  const PETA_DOMAIN_VENUE = {
+    'jf.lewat.web.id': 'jogokariyan-futsal',
+    '4r.lewat.web.id': '4r-futsal',
+    'kalisiminisoccer.lewat.web.id': 'kalisi-mini-soccer',
+  };
+
   const state = {
     venues: [],
     venueAktif: null,
@@ -6,6 +15,7 @@
     bulan: null, // 1-12
     tanggalDipilih: null,
     slotDipilih: null, // { court_nama, jam_mulai, jam_selesai, harga, warna }
+    venueTerkunci: PETA_DOMAIN_VENUE[window.location.hostname] || null,
   };
 
   const el = (id) => document.getElementById(id);
@@ -28,8 +38,24 @@
     state.bulan = now.getMonth() + 1;
 
     state.venues = await apiGet('/api/venues');
-    renderTabsVenue();
-    pilihVenue(state.venues[0].slug);
+
+    if (state.venueTerkunci) {
+      const v = state.venues.find((x) => x.slug === state.venueTerkunci);
+      if (v) {
+        el('venue-tabs').classList.add('hidden'); // domain khusus -> tidak perlu tab pilihan tempat
+        document.title = `Jadwal ${v.nama} — Booking Lapangan Jogja`;
+        el('brand-sub').textContent = v.nama;
+        el('hero-desc').textContent = `Klik tanggal di kalender untuk lihat jam yang masih kosong di ${v.nama}. Sudah cocok? Hubungi admin langsung lewat WhatsApp untuk konfirmasi booking.`;
+        pilihVenue(v.slug);
+      } else {
+        // fallback jaga-jaga kalau slug di peta domain tidak ditemukan di data venue
+        renderTabsVenue();
+        pilihVenue(state.venues[0].slug);
+      }
+    } else {
+      renderTabsVenue();
+      pilihVenue(state.venues[0].slug);
+    }
 
     el('btn-bulan-prev').addEventListener('click', () => gantiBulan(-1));
     el('btn-bulan-next').addEventListener('click', () => gantiBulan(1));
@@ -37,6 +63,7 @@
   }
 
   function renderTabsVenue() {
+    if (state.venueTerkunci) return; // domain khusus -> tab tidak pernah dirender
     const wrap = el('venue-tabs');
     wrap.innerHTML = '';
     state.venues.forEach((v) => {
