@@ -293,6 +293,36 @@
   </div>
 </div>
 
+<!-- MODAL: Edit Admin -->
+<div class="overlay hidden" id="modal-edit-admin">
+  <div class="modal">
+    <span class="tutup" id="tutup-modal-edit-admin">&times;</span>
+    <h3>Edit Admin</h3>
+    <p class="text-dim mb" style="font-size:12px;">Username: <span id="ea-username" class="mono"></span> (tidak bisa diubah)</p>
+    <div id="edit-admin-error"></div>
+    <form id="form-edit-admin">
+      <label>Nama Lengkap</label>
+      <input type="text" id="ea-nama" required>
+      <label>Role</label>
+      <select id="ea-role">
+        <option value="admin_khusus">Admin Khusus (1 tempat)</option>
+        <option value="admin_utama">Admin Utama (semua tempat)</option>
+      </select>
+      <div id="ea-venue-wrap">
+        <label>Tempat</label>
+        <select id="ea-venue"></select>
+      </div>
+      <label><input type="checkbox" id="ea-aktif" style="width:auto; margin-right:6px;">Akun aktif (bisa login)</label>
+      <label class="mt">Reset Password (opsional)</label>
+      <input type="password" id="ea-password" placeholder="Kosongkan kalau tidak ingin mengubah password" minlength="6">
+      <div class="flex gap mt">
+        <button type="button" class="btn btn-outline" id="ea-batal" style="flex:1;">Batal</button>
+        <button type="submit" class="btn btn-gold" style="flex:1;">Simpan Perubahan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script src="/js/admin.js"></script>
 </body>
 </html>

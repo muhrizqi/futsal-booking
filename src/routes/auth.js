@@ -69,8 +69,62 @@ router.post('/users', wajibLogin, hanyaAdminUtama, async (req, res) => {
   }
 });
 
+// PUT /api/auth/users/:id -> edit admin (nama, role, tempat, status aktif, reset password opsional)
+router.put('/users/:id', wajibLogin, hanyaAdminUtama, async (req, res) => {
+  try {
+    const targetId = Number(req.params.id);
+    const {
+      nama, role, venue_id, aktif, password,
+    } = req.body;
+
+    const target = (await pool.query('SELECT * FROM users WHERE id = $1', [targetId])).rows[0];
+    if (!target) return res.status(404).json({ error: 'Admin tidak ditemukan.' });
+
+    if (role && !['admin_utama', 'admin_khusus'].includes(role)) {
+      return res.status(400).json({ error: 'Role tidak valid.' });
+    }
+    if (role === 'admin_khusus' && !venue_id) {
+      return res.status(400).json({ error: 'Admin khusus wajib memilih satu tempat.' });
+    }
+
+    // Jangan sampai admin utama menonaktifkan atau menurunkan role akunnya sendiri -> bisa terkunci dari sistem
+    if (targetId === req.user.id) {
+      if (aktif === false) return res.status(400).json({ error: 'Tidak bisa menonaktifkan akun Anda sendiri.' });
+      if (role && role !== 'admin_utama') return res.status(400).json({ error: 'Tidak bisa mengubah role akun Anda sendiri.' });
+    }
+
+    const kolom = [];
+    const nilai = [];
+    let i = 1;
+    if (nama) { kolom.push(`nama = $${i++}`); nilai.push(nama); }
+    if (role) {
+      kolom.push(`role = $${i++}`); nilai.push(role);
+      kolom.push(`venue_id = $${i++}`); nilai.push(role === 'admin_utama' ? null : venue_id);
+    }
+    if (aktif !== undefined) { kolom.push(`aktif = $${i++}`); nilai.push(aktif); }
+    if (password) {
+      const hash = await bcrypt.hash(password, 10);
+      kolom.push(`password_hash = $${i++}`); nilai.push(hash);
+    }
+    if (kolom.length === 0) return res.status(400).json({ error: 'Tidak ada data yang diubah.' });
+
+    nilai.push(targetId);
+    const result = await pool.query(
+      `UPDATE users SET ${kolom.join(', ')} WHERE id = $${i} RETURNING id, username, nama, role, venue_id, aktif`,
+      nilai,
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Gagal menyimpan perubahan admin.' });
+  }
+});
+
 // PUT /api/auth/users/:id/nonaktifkan -> nonaktifkan admin (hanya admin utama)
 router.put('/users/:id/nonaktifkan', wajibLogin, hanyaAdminUtama, async (req, res) => {
+  if (Number(req.params.id) === req.user.id) {
+    return res.status(400).json({ error: 'Tidak bisa menonaktifkan akun Anda sendiri.' });
+  }
   await pool.query('UPDATE users SET aktif = FALSE WHERE id = $1', [req.params.id]);
   res.json({ ok: true });
 });

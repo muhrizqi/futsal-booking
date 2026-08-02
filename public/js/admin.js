@@ -650,13 +650,20 @@
   }
 
   // ---------------- KELOLA ADMIN ----------------
+  let adminCache = [];
+
   async function muatAdmin() {
-    const rows = await api('GET', '/api/auth/users');
+    adminCache = await api('GET', '/api/auth/users');
     let html = '<table class="data-table"><tr><th>Nama</th><th>Username</th><th>Role</th><th>Tempat</th><th>Status</th><th>Aksi</th></tr>';
-    rows.forEach((u) => {
+    adminCache.forEach((u) => {
       const roleBadge = u.role === 'admin_utama' ? '<span class="badge role-utama">Admin Utama</span>' : '<span class="badge role-khusus">Admin Khusus</span>';
+      const tombolNonaktif = u.aktif && u.id !== state.user.id
+        ? `<button class="btn btn-outline" style="padding:6px 12px; font-size:11px;" data-nonaktifkan="${u.id}">Nonaktifkan</button>` : '';
       html += `<tr><td>${u.nama}</td><td class="mono">${u.username}</td><td>${roleBadge}</td><td>${u.venue_nama || '-'}</td><td>${u.aktif ? 'Aktif' : 'Nonaktif'}</td>
-        <td>${u.aktif ? `<button class="btn btn-outline" style="padding:6px 12px; font-size:11px;" data-nonaktifkan="${u.id}">Nonaktifkan</button>` : '-'}</td></tr>`;
+        <td class="flex gap">
+          <button class="btn btn-outline" style="padding:6px 12px; font-size:11px;" data-edit="${u.id}">Edit</button>
+          ${tombolNonaktif}
+        </td></tr>`;
     });
     html += '</table>';
     el('admin-list').innerHTML = html;
@@ -667,7 +674,54 @@
         muatAdmin();
       });
     });
+    el('admin-list').querySelectorAll('[data-edit]').forEach((btn) => {
+      btn.addEventListener('click', () => bukaModalEditAdmin(Number(btn.dataset.edit)));
+    });
   }
+
+  function bukaModalEditAdmin(id) {
+    const u = adminCache.find((x) => x.id === id);
+    if (!u) return;
+    el('edit-admin-error').innerHTML = '';
+    el('ea-username').textContent = u.username;
+    el('ea-nama').value = u.nama;
+    el('ea-role').value = u.role;
+    el('ea-aktif').checked = u.aktif;
+    el('ea-password').value = '';
+    el('ea-venue').innerHTML = state.venues.map((v) => `<option value="${v.id}" ${v.id === u.venue_id ? 'selected' : ''}>${v.nama}</option>`).join('');
+    el('ea-venue-wrap').classList.toggle('hidden', u.role === 'admin_utama');
+
+    const diriSendiri = id === state.user.id;
+    el('ea-role').disabled = diriSendiri;
+    el('ea-aktif').disabled = diriSendiri;
+    el('form-edit-admin').dataset.editId = id;
+    el('modal-edit-admin').classList.remove('hidden');
+  }
+  el('tutup-modal-edit-admin').addEventListener('click', () => el('modal-edit-admin').classList.add('hidden'));
+  el('ea-batal').addEventListener('click', () => el('modal-edit-admin').classList.add('hidden'));
+  el('ea-role').addEventListener('change', () => {
+    el('ea-venue-wrap').classList.toggle('hidden', el('ea-role').value === 'admin_utama');
+  });
+
+  el('form-edit-admin').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    el('edit-admin-error').innerHTML = '';
+    const id = el('form-edit-admin').dataset.editId;
+    try {
+      const body = {
+        nama: el('ea-nama').value.trim(),
+        role: el('ea-role').value,
+        venue_id: el('ea-role').value === 'admin_khusus' ? Number(el('ea-venue').value) : null,
+        aktif: el('ea-aktif').checked,
+      };
+      if (el('ea-password').value) body.password = el('ea-password').value;
+      await api('PUT', `/api/auth/users/${id}`, body);
+      el('modal-edit-admin').classList.add('hidden');
+      muatAdmin();
+    } catch (err) {
+      el('edit-admin-error').innerHTML = `<div class="pesan-error">${err.message}</div>`;
+    }
+  });
 
   el('btn-tambah-admin').addEventListener('click', () => {
     el('tambah-admin-error').innerHTML = '';
